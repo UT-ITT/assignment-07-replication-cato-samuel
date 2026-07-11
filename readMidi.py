@@ -1,10 +1,15 @@
 import mido
 from pynput.keyboard import Controller, Key
 
-# 1. Detect and list all available MIDI input devices
+#velocity threshold above which the letters are uppercase
+THRESHOLD = 63
+
+#detect and list all available MIDI input devices
 input_names = mido.get_input_names()
 keyboard = Controller()
-NOTE_MAPPING = {
+
+#note mappings for single keys
+NOTE_MAPPING_LOWERCASE = {
     # Octave 1
     48: "t",  # C
     49: "h",  # C#
@@ -66,6 +71,68 @@ NOTE_MAPPING = {
     101: "e",  # F
     102: "f",  # F#
 }
+NOTE_MAPPING_UPPERCASE = {
+    # Octave 1
+    48: "T",  # C
+    49: "H",  # C#
+    50: "X",  # D
+    51: "G",  # D#
+    52: "J",  # E
+    53: "E",  # F
+    54: "Z",  # F#
+    55: "P",  # G
+    56: "K",  # G#
+    57: "F",  # A
+    58: "Y",  # A#
+    59: "M",  # B
+    # Octave 2
+    60: "D",  # C (Middle C)
+    61: "W",  # C#
+    62: "A",  # D
+    63: "U",  # D#
+    64: "O",  # E
+    65: "R",  # F
+    66: "N",  # F#
+    67: "E",  # G
+    68: "C",  # G#
+    69: "T",  # A
+    70: "L",  # A#
+    71: "I",  # B
+    # Octave 3
+    72: "S",  # C
+    73: "G",  # C#
+    74: "H",  # D
+    75: "V",  # D#
+    76: "B",  # E
+    77: "D",  # F
+    78: "Q",  # F#
+    79: "A",  # G
+    80: "M",  # G#
+    81: "E",  # A
+    82: "U",  # A#
+    83: "O",  # B
+    # Octave 4
+    84: "R",  # C
+    85: "F",  # C#
+    86: "N",  # D
+    87: "W",  # D#
+    88: "C",  # E
+    89: "K",  # F
+    90: "Y",  # F#
+    91: "P",  # G
+    92: "H",  # G#
+    93: "T",  # A
+    94: "A",  # A#
+    95: "I",  # B
+    # Octave 5
+    96: "S",  # C
+    97: "O",  # C#
+    98: "J",  # D
+    99: "L",  # D#
+    100: "Z",  # E
+    101: "E",  # F
+    102: "F",  # F#
+}
 
 
 print("Detected MIDI Input Devices:")
@@ -76,18 +143,23 @@ if not input_names:
     print("\nNo MIDI devices detected. Please plugin a device and try again.")
     exit()
 
-# 2. Automatically select and open the first connected device
-target_device = input_names[0]
+#let user select input device from printed list (number input required)
+input_device_num = int(input("\nSelect input device: "))
+target_device = input_names[input_device_num]
 print(f"\nOpening and listening to: {target_device}")
 
 try:
     with mido.open_input(target_device) as inport:
         print("Listening for MIDI messages... \n")
-        # 3. Continuously read incoming real-time MIDI data
+        #continuously read incoming real-time MIDI data
         for message in inport:
-            if hasattr(message, "note") and message.note in NOTE_MAPPING:
-                target_key = NOTE_MAPPING[message.note]
+            if hasattr(message, "note") and message.note in range(48, 103):
                 if message.type == "note_on" and message.velocity > 0:
+                    #translate note and velocity into keystroke
+                    if message.velocity > THRESHOLD:
+                        target_key = NOTE_MAPPING_UPPERCASE[message.note]
+                    else:
+                        target_key = NOTE_MAPPING_LOWERCASE[message.note]
                     keyboard.press(target_key)
                     print(f"Note On : {message.note} | Velocity: {message.velocity}")
                 if message.type == "note_on" and message.velocity == 0:
