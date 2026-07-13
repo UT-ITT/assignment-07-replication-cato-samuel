@@ -10,6 +10,20 @@ keyboard = Controller()
 
 # note mappings for single keys
 NOTE_MAPPING_LOWERCASE = {
+    35: "0",
+    # Octave 0 (NumBlock)
+    36: "1",
+    37: "2",
+    38: "3",
+    39: "4",
+    40: "5",
+    41: "6",
+    42: "7",
+    43: "8",
+    44: "9",
+    45: "+",
+    46: "-",
+    47: "*",
     # Octave 1
     48: "t",  # C
     49: "h",  # C#
@@ -135,9 +149,6 @@ NOTE_MAPPING_UPPERCASE = {
 }
 
 
-pressed_keys = []
-
-
 # get the key of the pitch
 def get_key(pitch):
     return pitch % 12 + 1
@@ -235,6 +246,7 @@ def get_tripple_n_gram(chord):
         (1, 5, 10): "how",
         (5, 10, 1): "when",
         (5, 8, 1): "good",
+        (1, 1, 1): "exit",
     }
 
     n_gram = n_grams.get(keys, "")
@@ -254,40 +266,54 @@ input_device_num = int(input("\nSelect input device: "))
 target_device = input_names[input_device_num]
 print(f"\nOpening and listening to: {target_device}")
 
-try:
-    with mido.open_input(target_device) as inport:
-        print("Listening for MIDI messages... \n")
-        # continuously read incoming real-time MIDI data
-        for message in inport:
-            if hasattr(message, "note") and message.note in range(48, 103):
-                if message.type == "note_on" and message.velocity > 0:
-                    pressed_keys.append(
-                        {
-                            "key": get_key(message.note),
-                            "letter": get_letter(message.note, message.velocity),
-                        }
-                    )
-                if message.type == "note_on" and message.velocity == 0:
-                    letters = ""
-                    while len(pressed_keys) > 0:
-                        if len(pressed_keys) > 2:
-                            n_gram = get_tripple_n_gram(pressed_keys[:3])
-                            if n_gram != "":
-                                letters += n_gram
-                                pressed_keys = pressed_keys[3:]
+
+def run():
+    pressed_keys = []
+    try:
+        with mido.open_input(target_device) as inport:
+            print("Press 3 Cs at the same time to exit")
+            print("Listening for MIDI messages... \n")
+            # continuously read incoming real-time MIDI data
+            for message in inport:
+                if hasattr(message, "note") and message.note in range(34, 103):
+                    if message.type == "note_on" and message.velocity > 0:
+                        pressed_keys.append(
+                            {
+                                "key": get_key(message.note),
+                                "letter": get_letter(message.note, message.velocity),
+                            }
+                        )
+                    if message.type == "note_on" and message.velocity == 0:
+                        letters = ""
+                        while len(pressed_keys) > 0:
+                            if len(pressed_keys) > 3:
+                                keyboard.press(Key.space)
+                                pressed_keys = []
                                 continue
-                        if len(pressed_keys) > 1:
-                            n_gram = get_double_n_gram(pressed_keys[:2])
-                            if n_gram != "":
-                                letters += n_gram
-                                pressed_keys = pressed_keys[2:]
-                                continue
-                        letters += pressed_keys[0]["letter"]
-                        pressed_keys = pressed_keys[1:]
-                    for letter in letters:
-                        keyboard.press(letter)
-                    pressed_keys = []
+
+                            if len(pressed_keys) > 2:
+                                n_gram = get_tripple_n_gram(pressed_keys[:3])
+                                if n_gram == "exit":
+                                    print("Exiting program...")
+                                    return
+                                if n_gram != "":
+                                    letters += n_gram
+                                    pressed_keys = pressed_keys[3:]
+                                    continue
+
+                            if len(pressed_keys) > 1:
+                                n_gram = get_double_n_gram(pressed_keys[:2])
+                                if n_gram != "":
+                                    letters += n_gram
+                                    pressed_keys = pressed_keys[2:]
+                                    continue
+                            letters += pressed_keys[0]["letter"]
+                            pressed_keys = pressed_keys[1:]
+                        for letter in letters:
+                            keyboard.press(letter)
+                        pressed_keys = []
+    except KeyboardInterrupt:
+        print("\nStopped listening to MIDI data.")
 
 
-except KeyboardInterrupt:
-    print("\nStopped listening to MIDI data.")
+run()
