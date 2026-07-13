@@ -216,8 +216,6 @@ def get_double_n_gram(chord):
 
 # return n_gram if it is a valid 3-key chord
 def get_tripple_n_gram(chord):
-    if len(chord) != 3:
-        return ""
 
     keys = (
         chord[0]["key"],
@@ -288,8 +286,6 @@ try:
                         pressed_keys = pressed_keys[1:]
                     for letter in letters:
                         keyboard.press(letter)
-                    # if len(letters) > 0:
-                    #     print(letters)
                     pressed_keys = []
 
 
