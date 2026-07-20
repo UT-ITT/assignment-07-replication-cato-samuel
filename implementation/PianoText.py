@@ -260,7 +260,6 @@ def get_tripple_n_gram(chord):
         (1, 5, 10): "how",
         (5, 10, 1): "when",
         (5, 8, 1): "good",
-        (1, 1, 1): "exit",
     }
 
     n_gram = n_grams.get(keys, "")
