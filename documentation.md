@@ -24,7 +24,5 @@ The implementation of the key to key mapping from the paper was straightforward 
 
 - Taking into account the amount of force with which a key is pressed -> implement a threshold above which the letter is considered uppercase instead of lowercase
 - Add a number block in another octave because the paper only uses 4 1/2 octaves of the 8 available on a standard size piano. This was added to octave 0
-- The program can be exited by pressing 3 Cs at the same time
-- Pressing more than 3 keys at the same time will trigger space
 
 However, after implementing the single-key upper-and lowercase mappings, we found out that implementing the combinations of keys was more complicated than expected and required us to implement a lot of edge cases. After that finally worked, we went on to also include numbers.
