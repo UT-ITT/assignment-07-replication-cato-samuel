@@ -304,8 +304,12 @@ def run():
                     ):
                         letters = ""
                         while len(pressed_keys) > 0:
-                            if len(pressed_keys) > 3:
+                            if len(pressed_keys) == 5:
                                 keyboard.press(Key.space)
+                                pressed_keys = []
+                                continue
+                            if len(pressed_keys) == 4:
+                                keyboard.press(Key.backspace)
                                 pressed_keys = []
                                 continue
 
