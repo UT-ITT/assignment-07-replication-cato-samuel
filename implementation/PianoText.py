@@ -283,7 +283,11 @@ def run():
                                 "letter": get_letter(message.note, message.velocity),
                             }
                         )
-                    if message.type == "note_on" and message.velocity == 0:
+                    if (  # legacy midi sends note_off as note_on with velocity 0
+                        message.type == "note_on"
+                        and message.velocity == 0
+                        or message.type == "note_off"
+                    ):
                         letters = ""
                         while len(pressed_keys) > 0:
                             if len(pressed_keys) > 3:
