@@ -26,3 +26,4 @@ The implementation of the key to key mapping from the paper was straightforward 
 - Add a number block in another octave because the paper only uses 4 1/2 octaves of the 8 available on a standard size piano. This was added to octave 0
 
 However, after implementing the single-key upper-and lowercase mappings, we found out that implementing the combinations of keys was more complicated than expected and required us to implement a lot of edge cases. After that finally worked, we went on to also include numbers.
+Additionally we also added some key combinations for exiting the program, space and backspace.
